@@ -1,0 +1,4 @@
+# This is a placeholder for the mod icon.
+# In a real implementation, you would place a 32x32 or 64x64 PNG image here.
+# For now, this text file serves as a placeholder.
+# The icon should be named "insighthud.png" and placed in the assets/insighthud folder.
