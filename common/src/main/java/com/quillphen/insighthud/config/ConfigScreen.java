@@ -33,176 +33,167 @@ public class ConfigScreen extends Screen {
         super.init();
         
         int centerX = this.width / 2;
-        int leftColumn = centerX - 160;
-        int rightColumn = centerX + 20;
-        int startY = 90;
-        int spacing = 24;
-        int currentY = startY;
+        int panelWidth = 340;
+        int panelStartX = centerX - panelWidth / 2;
+        int contentStartY = 80;
+        int spacing = 22;
+        int currentY = contentStartY;
         
-        // Left column - Entity HUD options
+        // Entity HUD Section
         this.enableEntityHud = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("Enable Entity HUD"), this.font)
-                .pos(leftColumn, currentY)
+            Checkbox.builder(Component.literal("Entity HUD"), this.font)
+                .pos(panelStartX + 20, currentY)
                 .selected(config.enableEntityHud)
                 .build());
         currentY += spacing;
         
+        // Sub-options for Entity HUD (indented)
         this.showEntityHealth = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("  Show Entity Health"), this.font)
-                .pos(leftColumn + 16, currentY)
+            Checkbox.builder(Component.literal("Show Health"), this.font)
+                .pos(panelStartX + 40, currentY)
                 .selected(config.showEntityHealth)
                 .build());
-        currentY += spacing;
         
         this.showEntityArmor = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("  Show Entity Armor"), this.font)
-                .pos(leftColumn + 16, currentY)
+            Checkbox.builder(Component.literal("Show Armor"), this.font)
+                .pos(panelStartX + 170, currentY)
                 .selected(config.showEntityArmor)
                 .build());
         currentY += spacing;
         
         this.showEntityEffects = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("  Show Entity Effects"), this.font)
-                .pos(leftColumn + 16, currentY)
+            Checkbox.builder(Component.literal("Show Effects"), this.font)
+                .pos(panelStartX + 40, currentY)
                 .selected(config.showEntityEffects)
                 .build());
+        currentY += spacing + 10; // Extra space between sections
         
-        // Right column - Gear HUD and General options
-        currentY = startY;
+        // Gear HUD Section
         this.enableGearHud = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("Enable Gear HUD"), this.font)
-                .pos(rightColumn, currentY)
+            Checkbox.builder(Component.literal("Gear HUD"), this.font)
+                .pos(panelStartX + 20, currentY)
                 .selected(config.enableGearHud)
                 .build());
-        currentY += spacing;
+        currentY += spacing + 10; // Extra space
+        
+        // General Settings Section
+        this.enableAnimations = this.addRenderableWidget(
+            Checkbox.builder(Component.literal("Smooth Animations"), this.font)
+                .pos(panelStartX + 20, currentY)
+                .selected(config.enableAnimations)
+                .build());
         
         this.hideInF3 = this.addRenderableWidget(
             Checkbox.builder(Component.literal("Hide in F3 Debug"), this.font)
-                .pos(rightColumn, currentY)
+                .pos(panelStartX + 180, currentY)
                 .selected(config.hideInF3)
                 .build());
-        currentY += spacing;
         
-        this.enableAnimations = this.addRenderableWidget(
-            Checkbox.builder(Component.literal("Enable Animations"), this.font)
-                .pos(rightColumn, currentY)
-                .selected(config.enableAnimations)
-                .build());        // Buttons at bottom with better spacing and clearer labels
-        int buttonY = this.height - 45; // Moved up more for better visibility
-        int buttonWidth = 90;
-        int buttonHeight = 20;
+        // Action buttons at bottom - modern style
+        int buttonY = this.height - 50;
+        int buttonWidth = 100;
+        int buttonHeight = 24;
         
-        // Save & Close button (more prominent) - always ensure it's visible
-        this.addRenderableWidget(Button.builder(Component.literal("Save & Exit"), button -> {
+        // Save button (primary action)
+        this.addRenderableWidget(Button.builder(Component.literal("Save"), button -> {
             saveConfig();
             this.minecraft.setScreen(this.parent);
-        }).bounds(centerX - buttonWidth - 5, buttonY, buttonWidth, buttonHeight).build());
+        }).bounds(centerX - buttonWidth - 10, buttonY, buttonWidth, buttonHeight).build());
         
-        // Reset to Defaults button
-        this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
-            resetToDefaults();
-        }).bounds(centerX + 5, buttonY, buttonWidth, buttonHeight).build());
-        
-        // Cancel button for convenience - positioned below the main buttons
+        // Cancel button
         this.addRenderableWidget(Button.builder(Component.literal("Cancel"), button -> {
             this.minecraft.setScreen(this.parent);
-        }).bounds(centerX - buttonWidth/2, buttonY + 25, buttonWidth, buttonHeight).build());
+        }).bounds(centerX + 10, buttonY, buttonWidth, buttonHeight).build());
+        
+        // Reset button (smaller, less prominent)
+        this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
+            resetToDefaults();
+        }).bounds(centerX - 35, buttonY - 30, 70, 18).build());
     }    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         
-        // Enhanced background with improved modern styling
-        int bgColor = 0x99000000; // Slightly more opaque background
-        int panelColor = 0xAA222222; // Darker panel for better contrast
-        int headerColor = 0xDD1E1E1E; // Dark header
-        int accentColor = 0xFF5599FF; // Brighter blue accent
-        int separatorColor = 0x66FFFFFF; // Subtle separator
+        // Modern color scheme
+        int darkBg = 0xE0000000;        // Semi-transparent dark background
+        int panelBg = 0xF0121212;       // Dark panel background
+        int accentColor = 0xFF3B82F6;   // Modern blue accent
+        int textColor = 0xFFFFFFFF;     // White text
+        int subtleText = 0xFFB3B3B3;    // Subtle gray text
+        int dividerColor = 0x40FFFFFF;  // Subtle divider
         
-        // Main panel with subtle border
-        int panelMargin = 25;
-        graphics.fill(panelMargin, panelMargin, this.width - panelMargin, this.height - panelMargin, bgColor);
-        graphics.fill(panelMargin, panelMargin, this.width - panelMargin, panelMargin + 1, separatorColor);
-        graphics.fill(panelMargin, this.height - panelMargin - 1, this.width - panelMargin, this.height - panelMargin, separatorColor);
-        graphics.fill(panelMargin, panelMargin, panelMargin + 1, this.height - panelMargin, separatorColor);
-        graphics.fill(this.width - panelMargin - 1, panelMargin, this.width - panelMargin, this.height - panelMargin, separatorColor);
-        
-        // Header section with gradient effect
-        graphics.fill(panelMargin, panelMargin, this.width - panelMargin, 75, headerColor);
-        graphics.fill(panelMargin, 73, this.width - panelMargin, 75, accentColor);
-        
-        // Column separator
         int centerX = this.width / 2;
-        graphics.fill(centerX - 1, 80, centerX + 1, this.height - 60, 0x33FFFFFF);
+        int panelWidth = 360;
+        int panelHeight = 280;
+        int panelX = centerX - panelWidth / 2;
+        int panelY = (this.height - panelHeight) / 2 - 10;
         
-        // Title with enhanced styling and better positioning
-        Component title = Component.literal("Insight HUD Configuration");
+        // Main panel with subtle shadow
+        graphics.fill(panelX + 2, panelY + 2, panelX + panelWidth + 2, panelY + panelHeight + 2, 0x40000000); // Shadow
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, panelBg);
+        
+        // Header section
+        int headerHeight = 50;
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + headerHeight, 0x20FFFFFF);
+        
+        // Title
+        Component title = Component.literal("Insight HUD Settings");
         int titleX = centerX - this.font.width(title) / 2;
-        // Drop shadow
-        graphics.drawString(this.font, title, titleX + 1, 42, 0x80000000);
-        // Main title
-        graphics.drawString(this.font, title, titleX, 41, 0xFFFFFFFF);
+        graphics.drawString(this.font, title, titleX, panelY + 20, textColor);
         
-        // Section headers with icons and better styling
-        Component entityHeader = Component.literal("🎯 Entity Information");
-        Component gearHeader = Component.literal("⚔ Equipment & General");
+        // Section dividers and labels
+        int sectionY = panelY + headerHeight + 20;
         
-        int leftHeader = centerX - 160;
-        int rightHeader = centerX + 20;
+        // Entity HUD section
+        Component entityLabel = Component.literal("Entity Information");
+        graphics.drawString(this.font, entityLabel, panelX + 20, sectionY - 5, accentColor);
+        graphics.fill(panelX + 20, sectionY + 8, panelX + panelWidth - 20, sectionY + 9, dividerColor);
         
-        // Section headers with background
-        graphics.fill(leftHeader - 4, 57, leftHeader + this.font.width(entityHeader) + 4, 69, 0x44000000);
-        graphics.fill(rightHeader - 4, 57, rightHeader + this.font.width(gearHeader) + 4, 69, 0x44000000);
+        // Gear HUD section
+        int gearSectionY = sectionY + 85;
+        Component gearLabel = Component.literal("Equipment Display");
+        graphics.drawString(this.font, gearLabel, panelX + 20, gearSectionY - 5, accentColor);
+        graphics.fill(panelX + 20, gearSectionY + 8, panelX + panelWidth - 20, gearSectionY + 9, dividerColor);
         
-        graphics.drawString(this.font, entityHeader, leftHeader, 60, accentColor);
-        graphics.drawString(this.font, gearHeader, rightHeader, 60, accentColor);
+        // General Settings section
+        int generalSectionY = gearSectionY + 35;
+        Component generalLabel = Component.literal("General Settings");
+        graphics.drawString(this.font, generalLabel, panelX + 20, generalSectionY - 5, accentColor);
+        graphics.fill(panelX + 20, generalSectionY + 8, panelX + panelWidth - 20, generalSectionY + 9, dividerColor);
         
-        // Enhanced tooltips with better descriptions
-        if (mouseX >= enableEntityHud.getX() && mouseX <= enableEntityHud.getX() + enableEntityHud.getWidth() &&
-            mouseY >= enableEntityHud.getY() && mouseY <= enableEntityHud.getY() + enableEntityHud.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Display information about the entity you're targeting"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= showEntityHealth.getX() && mouseX <= showEntityHealth.getX() + showEntityHealth.getWidth() &&
-            mouseY >= showEntityHealth.getY() && mouseY <= showEntityHealth.getY() + showEntityHealth.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Show health hearts or health bar for targeted entities"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= showEntityArmor.getX() && mouseX <= showEntityArmor.getX() + showEntityArmor.getWidth() &&
-            mouseY >= showEntityArmor.getY() && mouseY <= showEntityArmor.getY() + showEntityArmor.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Display armor value and protection level"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= showEntityEffects.getX() && mouseX <= showEntityEffects.getX() + showEntityEffects.getWidth() &&
-            mouseY >= showEntityEffects.getY() && mouseY <= showEntityEffects.getY() + showEntityEffects.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Show active potion effects with levels"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= enableGearHud.getX() && mouseX <= enableGearHud.getX() + enableGearHud.getWidth() &&
-            mouseY >= enableGearHud.getY() && mouseY <= enableGearHud.getY() + enableGearHud.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Display durability and status of your equipment"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= hideInF3.getX() && mouseX <= hideInF3.getX() + hideInF3.getWidth() &&
-            mouseY >= hideInF3.getY() && mouseY <= hideInF3.getY() + hideInF3.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Hide HUD when F3 debug screen is open"), mouseX, mouseY);
-        }
-        
-        if (mouseX >= enableAnimations.getX() && mouseX <= enableAnimations.getX() + enableAnimations.getWidth() &&
-            mouseY >= enableAnimations.getY() && mouseY <= enableAnimations.getY() + enableAnimations.getHeight()) {
-            graphics.renderTooltip(this.font, Component.literal("Enable smooth animations and transitions for better visual appeal"), mouseX, mouseY);
-        }          // Help text at bottom with better positioning
-        Component helpText = Component.literal("Click 'Save & Exit' to apply changes • Click 'Cancel' to exit without saving");
-        int helpX = centerX - this.font.width(helpText) / 2;
-        graphics.drawString(this.font, helpText, helpX, this.height - 75, 0xFF999999);
-        
-        // Additional help text for save button visibility
-        Component saveText = Component.literal("All changes are saved automatically when you click 'Save & Exit'");
-        int saveX = centerX - this.font.width(saveText) / 2;
-        graphics.drawString(this.font, saveText, saveX, this.height - 63, 0xFFAAAAFF);
+        // Subtle tooltips on hover
+        renderTooltips(graphics, mouseX, mouseY);
         
         super.render(graphics, mouseX, mouseY, partialTick);
+        
+        // Footer text
+        Component footerText = Component.literal("Changes are saved automatically");
+        int footerX = centerX - this.font.width(footerText) / 2;
+        graphics.drawString(this.font, footerText, footerX, this.height - 25, subtleText);
     }
-      private void saveConfig() {
+    
+    private void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+        // Simple, informative tooltips
+        if (isHovering(enableEntityHud, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Show information about targeted entities"), mouseX, mouseY);
+        } else if (isHovering(showEntityHealth, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Display entity health bars"), mouseX, mouseY);
+        } else if (isHovering(showEntityArmor, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Show entity armor values"), mouseX, mouseY);
+        } else if (isHovering(showEntityEffects, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Display active potion effects"), mouseX, mouseY);
+        } else if (isHovering(enableGearHud, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Show equipment durability status"), mouseX, mouseY);
+        } else if (isHovering(enableAnimations, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Enable smooth transitions and animations"), mouseX, mouseY);
+        } else if (isHovering(hideInF3, mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, Component.literal("Hide HUD when debug screen is open"), mouseX, mouseY);
+        }
+    }
+    
+    private boolean isHovering(Checkbox checkbox, int mouseX, int mouseY) {
+        return mouseX >= checkbox.getX() && mouseX <= checkbox.getX() + checkbox.getWidth() &&
+               mouseY >= checkbox.getY() && mouseY <= checkbox.getY() + checkbox.getHeight();
+    }    private void saveConfig() {
         // Update config with current widget values
         config.enableEntityHud = enableEntityHud.selected();
         config.showEntityHealth = showEntityHealth.selected();
@@ -212,16 +203,21 @@ public class ConfigScreen extends Screen {
         config.hideInF3 = hideInF3.selected();
         config.enableAnimations = enableAnimations.selected();
         
-        // Force save the configuration to file
-        try {
-            InsightHudConfig.saveConfig();
-            System.out.println("Insight HUD: Configuration saved successfully");
-        } catch (Exception e) {
-            System.err.println("Insight HUD: Error saving configuration: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }private void resetToDefaults() {
-        // Reset config to defaults
+        // Save the configuration
+        InsightHudConfig.saveConfig();
+    }
+
+    private void resetToDefaults() {
+        // Reset all checkboxes to default values
+        enableEntityHud.selected = true;
+        showEntityHealth.selected = true;
+        showEntityArmor.selected = true;
+        showEntityEffects.selected = true;
+        enableGearHud.selected = true;
+        hideInF3.selected = true;
+        enableAnimations.selected = true;
+        
+        // Update config with defaults
         config.enableEntityHud = true;
         config.showEntityHealth = true;
         config.showEntityArmor = true;
@@ -229,10 +225,6 @@ public class ConfigScreen extends Screen {
         config.enableGearHud = true;
         config.hideInF3 = true;
         config.enableAnimations = true;
-        
-        // Recreate the widgets to reset their state
-        this.clearWidgets();
-        this.init();
         
         // Save the reset config
         InsightHudConfig.saveConfig();

@@ -25,12 +25,19 @@ import net.minecraft.world.item.Items;
  * Features pixel-perfect positioning, smooth transitions, and intuitive user-friendly design
  */
 public class HudRenderer {    private static final Minecraft minecraft = Minecraft.getInstance();
-    
-    // Animation and timing
+      // Animation and timing
     private static long lastUpdateTime = 0;
     private static LivingEntity lastTargetedEntity = null;
+    private static LivingEntity lastDamagedEntity = null;
+    private static long lastDamageTime = 0;
     private static float entityFadeAlpha = 0.0f;
     private static boolean isTargetingEntity = false;
+    
+    // Track damaged entities for longer display
+    private static final long DAMAGE_DISPLAY_DURATION = 5000; // Show for 5 seconds after damage
+    
+    // Map to track entity health values for damage detection
+    private static final java.util.Map<LivingEntity, Float> entityHealthTracker = new java.util.HashMap<>();
     
     public static void init() {
         // Initialize rendering system
@@ -72,22 +79,36 @@ public class HudRenderer {    private static final Minecraft minecraft = Minecra
         }
         
         return minecraft.player != null && minecraft.level != null;
-    }
-      private static void renderPolishedEntityHud(GuiGraphics graphics, float partialTick, float deltaTime, InsightHudConfig.ConfigData config) {
+    }      private static void renderPolishedEntityHud(GuiGraphics graphics, float partialTick, float deltaTime, InsightHudConfig.ConfigData config) {
         LivingEntity targetEntity = EntityUtil.getTargetedEntity();
         
-        // Smooth targeting detection with animations
+        // Check for damaged entities and update tracking
+        updateDamagedEntityTracking();
+        
+        // Determine which entity to show: targeted entity takes priority, otherwise show recently damaged entity
+        LivingEntity entityToShow = null;
         boolean hasTarget = targetEntity != null && EntityUtil.isValidTarget(targetEntity);
-          // Handle target changes with smooth transitions
-        if (hasTarget && targetEntity != lastTargetedEntity) {
-            lastTargetedEntity = targetEntity;
+        boolean hasRecentlyDamaged = lastDamagedEntity != null && EntityUtil.isValidTarget(lastDamagedEntity) && 
+                                   (System.currentTimeMillis() - lastDamageTime < DAMAGE_DISPLAY_DURATION);
+        
+        if (hasTarget) {
+            entityToShow = targetEntity;
+        } else if (hasRecentlyDamaged) {
+            entityToShow = lastDamagedEntity;
+        }
+        
+        boolean shouldShow = entityToShow != null;
+        
+        // Handle target changes with smooth transitions
+        if (shouldShow && entityToShow != lastTargetedEntity) {
+            lastTargetedEntity = entityToShow;
             isTargetingEntity = true;
-        } else if (!hasTarget && isTargetingEntity) {
+        } else if (!shouldShow && isTargetingEntity) {
             isTargetingEntity = false;
         }
         
         // Smooth fade animation
-        float targetAlpha = hasTarget ? 1.0f : 0.0f;
+        float targetAlpha = shouldShow ? 1.0f : 0.0f;
         entityFadeAlpha = Mth.lerp(deltaTime * 8.0f, entityFadeAlpha, targetAlpha);
           if (entityFadeAlpha > 0.01f && lastTargetedEntity != null) {
             // Calculate positioning - TRUE TOP CENTER with reduced blank space
@@ -505,8 +526,27 @@ public class HudRenderer {    private static final Minecraft minecraft = Minecra
         } else if (entityType == EntityType.PIGLIN || entityType == EntityType.ZOMBIFIED_PIGLIN) {
             return new ItemStack(net.minecraft.world.item.Items.PIGLIN_HEAD);
         }
-        
-        // For animals and other mobs, use representative items
+          // Sea creatures with their corresponding food items
+        if (entityType == EntityType.SALMON) {
+            return new ItemStack(net.minecraft.world.item.Items.SALMON);
+        } else if (entityType == EntityType.COD) {
+            return new ItemStack(net.minecraft.world.item.Items.COD);
+        } else if (entityType == EntityType.PUFFERFISH) {
+            return new ItemStack(net.minecraft.world.item.Items.PUFFERFISH);
+        } else if (entityType == EntityType.TROPICAL_FISH) {
+            return new ItemStack(net.minecraft.world.item.Items.TROPICAL_FISH);
+        } else if (entityType == EntityType.SQUID || entityType == EntityType.GLOW_SQUID) {
+            return new ItemStack(net.minecraft.world.item.Items.INK_SAC);
+        } else if (entityType == EntityType.GUARDIAN || entityType == EntityType.ELDER_GUARDIAN) {
+            return new ItemStack(net.minecraft.world.item.Items.PRISMARINE_SHARD);
+        } else if (entityType == EntityType.DOLPHIN) {
+            return new ItemStack(net.minecraft.world.item.Items.COD); // Dolphins eat fish
+        } else if (entityType == EntityType.TURTLE) {
+            return new ItemStack(net.minecraft.world.item.Items.SEAGRASS);
+        } else if (entityType == EntityType.AXOLOTL) {
+            return new ItemStack(net.minecraft.world.item.Items.TROPICAL_FISH_BUCKET);
+        }
+          // Farm animals with their drops/products
         if (entityType == EntityType.PIG) {
             return new ItemStack(net.minecraft.world.item.Items.PORKCHOP);
         } else if (entityType == EntityType.COW) {
@@ -515,7 +555,38 @@ public class HudRenderer {    private static final Minecraft minecraft = Minecra
             return new ItemStack(net.minecraft.world.item.Items.WHITE_WOOL);
         } else if (entityType == EntityType.CHICKEN) {
             return new ItemStack(net.minecraft.world.item.Items.FEATHER);
-        } else if (entityType == EntityType.SPIDER || entityType == EntityType.CAVE_SPIDER) {
+        } else if (entityType == EntityType.RABBIT) {
+            return new ItemStack(net.minecraft.world.item.Items.RABBIT);
+        } else if (entityType == EntityType.MOOSHROOM) {
+            return new ItemStack(net.minecraft.world.item.Items.RED_MUSHROOM);
+        } else if (entityType == EntityType.GOAT) {
+            return new ItemStack(net.minecraft.world.item.Items.GOAT_HORN);
+        }
+        
+        // Horses and related
+        else if (entityType == EntityType.HORSE || entityType == EntityType.DONKEY || entityType == EntityType.MULE) {
+            return new ItemStack(net.minecraft.world.item.Items.LEATHER);
+        } else if (entityType == EntityType.LLAMA || entityType == EntityType.TRADER_LLAMA) {
+            return new ItemStack(net.minecraft.world.item.Items.LEATHER);
+        }
+        
+        // Wild animals
+        else if (entityType == EntityType.WOLF) {
+            return new ItemStack(net.minecraft.world.item.Items.BONE);
+        } else if (entityType == EntityType.CAT || entityType == EntityType.OCELOT) {
+            return new ItemStack(net.minecraft.world.item.Items.STRING);
+        } else if (entityType == EntityType.FOX) {
+            return new ItemStack(net.minecraft.world.item.Items.SWEET_BERRIES);
+        } else if (entityType == EntityType.PANDA) {
+            return new ItemStack(net.minecraft.world.item.Items.BAMBOO);
+        } else if (entityType == EntityType.POLAR_BEAR) {
+            return new ItemStack(net.minecraft.world.item.Items.COD);
+        } else if (entityType == EntityType.BEE) {
+            return new ItemStack(net.minecraft.world.item.Items.HONEYCOMB);
+        }
+        
+        // Hostile mobs with their drops
+        else if (entityType == EntityType.SPIDER || entityType == EntityType.CAVE_SPIDER) {
             return new ItemStack(net.minecraft.world.item.Items.SPIDER_EYE);
         } else if (entityType == EntityType.ENDERMAN) {
             return new ItemStack(net.minecraft.world.item.Items.ENDER_PEARL);
@@ -523,12 +594,59 @@ public class HudRenderer {    private static final Minecraft minecraft = Minecra
             return new ItemStack(net.minecraft.world.item.Items.BLAZE_ROD);
         } else if (entityType == EntityType.WITCH) {
             return new ItemStack(net.minecraft.world.item.Items.POTION);
-        } else if (entityType == EntityType.SLIME || entityType == EntityType.MAGMA_CUBE) {
+        } else if (entityType == EntityType.SLIME) {
             return new ItemStack(net.minecraft.world.item.Items.SLIME_BALL);
+        } else if (entityType == EntityType.MAGMA_CUBE) {
+            return new ItemStack(net.minecraft.world.item.Items.MAGMA_CREAM);
         } else if (entityType == EntityType.GHAST) {
             return new ItemStack(net.minecraft.world.item.Items.GHAST_TEAR);
-        } else if (entityType == EntityType.VILLAGER) {
+        } else if (entityType == EntityType.WITHER) {
+            return new ItemStack(net.minecraft.world.item.Items.NETHER_STAR);
+        } else if (entityType == EntityType.ENDER_DRAGON) {
+            return new ItemStack(net.minecraft.world.item.Items.DRAGON_EGG);
+        }
+        
+        // Nether mobs
+        else if (entityType == EntityType.PIGLIN || entityType == EntityType.PIGLIN_BRUTE) {
+            return new ItemStack(net.minecraft.world.item.Items.GOLD_INGOT);
+        } else if (entityType == EntityType.ZOMBIFIED_PIGLIN) {
+            return new ItemStack(net.minecraft.world.item.Items.ROTTEN_FLESH);
+        } else if (entityType == EntityType.HOGLIN || entityType == EntityType.ZOGLIN) {
+            return new ItemStack(net.minecraft.world.item.Items.PORKCHOP);
+        } else if (entityType == EntityType.STRIDER) {
+            return new ItemStack(net.minecraft.world.item.Items.STRING);
+        }
+        
+        // NPCs and special entities
+        else if (entityType == EntityType.VILLAGER) {
             return new ItemStack(net.minecraft.world.item.Items.EMERALD);
+        } else if (entityType == EntityType.WANDERING_TRADER) {
+            return new ItemStack(net.minecraft.world.item.Items.EMERALD);
+        } else if (entityType == EntityType.IRON_GOLEM) {
+            return new ItemStack(net.minecraft.world.item.Items.IRON_INGOT);
+        } else if (entityType == EntityType.SNOW_GOLEM) {
+            return new ItemStack(net.minecraft.world.item.Items.SNOWBALL);
+        }
+        
+        // Additional hostile mobs
+        else if (entityType == EntityType.SILVERFISH) {
+            return new ItemStack(net.minecraft.world.item.Items.COBBLESTONE);
+        } else if (entityType == EntityType.ENDERMITE) {
+            return new ItemStack(net.minecraft.world.item.Items.ENDER_PEARL);
+        } else if (entityType == EntityType.SHULKER) {
+            return new ItemStack(net.minecraft.world.item.Items.SHULKER_SHELL);
+        } else if (entityType == EntityType.PHANTOM) {
+            return new ItemStack(net.minecraft.world.item.Items.PHANTOM_MEMBRANE);
+        } else if (entityType == EntityType.VEX) {
+            return new ItemStack(net.minecraft.world.item.Items.IRON_SWORD);
+        } else if (entityType == EntityType.EVOKER) {
+            return new ItemStack(net.minecraft.world.item.Items.TOTEM_OF_UNDYING);
+        } else if (entityType == EntityType.VINDICATOR) {
+            return new ItemStack(net.minecraft.world.item.Items.IRON_AXE);
+        } else if (entityType == EntityType.PILLAGER) {
+            return new ItemStack(net.minecraft.world.item.Items.CROSSBOW);
+        } else if (entityType == EntityType.RAVAGER) {
+            return new ItemStack(net.minecraft.world.item.Items.SADDLE);
         }
           return ItemStack.EMPTY;
     }
@@ -856,5 +974,68 @@ public class HudRenderer {    private static final Minecraft minecraft = Minecra
         else if (durabilityPercent > 0.3f) return 0xFFFFFF55; // Yellow
         else if (durabilityPercent > 0.1f) return 0xFFFF8855; // Orange
         else return 0xFFFF5555; // Red
+    }
+    
+    /**
+     * Updates tracking for damaged entities by monitoring health changes
+     */
+    private static void updateDamagedEntityTracking() {
+        if (minecraft.level == null || minecraft.player == null) {
+            return;
+        }
+        
+        // Get nearby entities within a reasonable distance (32 blocks)
+        java.util.List<LivingEntity> nearbyEntities = minecraft.level.getEntitiesOfClass(
+            LivingEntity.class, 
+            minecraft.player.getBoundingBox().inflate(32.0)
+        );
+        
+        // Check each entity for health changes
+        for (LivingEntity entity : nearbyEntities) {
+            if (entity == minecraft.player || !EntityUtil.isValidTarget(entity)) {
+                continue;
+            }
+            
+            float currentHealth = entity.getHealth();
+            Float previousHealth = entityHealthTracker.get(entity);
+            
+            if (previousHealth != null && currentHealth < previousHealth) {
+                // Entity has taken damage - check if it was recent and significant
+                float damage = previousHealth - currentHealth;
+                if (damage > 0.1f) { // Minimum damage threshold
+                    lastDamagedEntity = entity;
+                    lastDamageTime = System.currentTimeMillis();
+                }
+            }
+            
+            // Update tracked health
+            entityHealthTracker.put(entity, currentHealth);
+        }
+        
+        // Clean up tracking for entities that are no longer nearby or dead
+        entityHealthTracker.entrySet().removeIf(entry -> {
+            LivingEntity entity = entry.getKey();
+            return !entity.isAlive() || 
+                   entity.distanceToSqr(minecraft.player) > 32 * 32 ||
+                   !nearbyEntities.contains(entity);
+        });
+        
+        // Clear damaged entity reference if it's been too long or entity is invalid
+        if (lastDamagedEntity != null && 
+            (System.currentTimeMillis() - lastDamageTime >= DAMAGE_DISPLAY_DURATION ||
+             !EntityUtil.isValidTarget(lastDamagedEntity))) {
+            lastDamagedEntity = null;
+        }
+    }
+    
+    /**
+     * Manually sets an entity as recently damaged (for external API usage)
+     * @param entity The entity that was damaged
+     */
+    public static void markEntityAsDamaged(LivingEntity entity) {
+        if (entity != null && EntityUtil.isValidTarget(entity)) {
+            lastDamagedEntity = entity;
+            lastDamageTime = System.currentTimeMillis();
+        }
     }
 }
