@@ -66,13 +66,12 @@ public class LootTableScreen extends Screen {
         // Entity info
         String entityInfo = "Entity: " + entity.getDisplayName().getString();
         graphics.drawCenteredString(this.font, entityInfo, this.width / 2, 40, 0xCCCCCC);
-        
-        // Loot items
+          // Loot items
         int startY = 70;
         graphics.drawString(this.font, "Possible Loot:", this.width / 2 - 100, startY, 0xFFFFFF);
         
         for (int i = 0; i < lootItems.length; i++) {
-            graphics.drawString(this.font, "• " + lootItems[i], this.width / 2 - 90, startY + 20 + (i * 15), 0xAAAAAAA);
+            graphics.drawString(this.font, "• " + lootItems[i], this.width / 2 - 90, startY + 20 + (i * 15), 0xAAAAAA);
         }
         
         super.render(graphics, mouseX, mouseY, partialTick);

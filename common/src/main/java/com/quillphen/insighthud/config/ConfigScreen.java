@@ -87,23 +87,26 @@ public class ConfigScreen extends Screen {
             Checkbox.builder(Component.literal("Enable Animations"), this.font)
                 .pos(rightColumn, currentY)
                 .selected(config.enableAnimations)
-                .build());
+                .build());        // Buttons at bottom with better spacing and clearer labels
+        int buttonY = this.height - 45; // Moved up more for better visibility
+        int buttonWidth = 90;
+        int buttonHeight = 20;
         
-        // Buttons at bottom with better spacing and clearer labels
-        int buttonY = this.height - 35;
-        int buttonWidth = 100;
-        int buttonHeight = 22;
-        
-        // Save & Close button (more prominent)
-        this.addRenderableWidget(Button.builder(Component.literal("Save & Close"), button -> {
+        // Save & Close button (more prominent) - always ensure it's visible
+        this.addRenderableWidget(Button.builder(Component.literal("Save & Exit"), button -> {
             saveConfig();
             this.minecraft.setScreen(this.parent);
         }).bounds(centerX - buttonWidth - 5, buttonY, buttonWidth, buttonHeight).build());
         
         // Reset to Defaults button
-        this.addRenderableWidget(Button.builder(Component.literal("Reset Defaults"), button -> {
+        this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
             resetToDefaults();
         }).bounds(centerX + 5, buttonY, buttonWidth, buttonHeight).build());
+        
+        // Cancel button for convenience - positioned below the main buttons
+        this.addRenderableWidget(Button.builder(Component.literal("Cancel"), button -> {
+            this.minecraft.setScreen(this.parent);
+        }).bounds(centerX - buttonWidth/2, buttonY + 25, buttonWidth, buttonHeight).build());
     }    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -187,17 +190,20 @@ public class ConfigScreen extends Screen {
         if (mouseX >= enableAnimations.getX() && mouseX <= enableAnimations.getX() + enableAnimations.getWidth() &&
             mouseY >= enableAnimations.getY() && mouseY <= enableAnimations.getY() + enableAnimations.getHeight()) {
             graphics.renderTooltip(this.font, Component.literal("Enable smooth animations and transitions for better visual appeal"), mouseX, mouseY);
-        }
-        
-        // Help text at bottom
-        Component helpText = Component.literal("Changes are saved automatically when you click 'Save & Close'");
+        }          // Help text at bottom with better positioning
+        Component helpText = Component.literal("Click 'Save & Exit' to apply changes • Click 'Cancel' to exit without saving");
         int helpX = centerX - this.font.width(helpText) / 2;
-        graphics.drawString(this.font, helpText, helpX, this.height - 55, 0xFF999999);
+        graphics.drawString(this.font, helpText, helpX, this.height - 75, 0xFF999999);
+        
+        // Additional help text for save button visibility
+        Component saveText = Component.literal("All changes are saved automatically when you click 'Save & Exit'");
+        int saveX = centerX - this.font.width(saveText) / 2;
+        graphics.drawString(this.font, saveText, saveX, this.height - 63, 0xFFAAAAFF);
         
         super.render(graphics, mouseX, mouseY, partialTick);
     }
-    
-    private void saveConfig() {
+      private void saveConfig() {
+        // Update config with current widget values
         config.enableEntityHud = enableEntityHud.selected();
         config.showEntityHealth = showEntityHealth.selected();
         config.showEntityArmor = showEntityArmor.selected();
@@ -206,8 +212,15 @@ public class ConfigScreen extends Screen {
         config.hideInF3 = hideInF3.selected();
         config.enableAnimations = enableAnimations.selected();
         
-        InsightHudConfig.saveConfig();
-    }    private void resetToDefaults() {
+        // Force save the configuration to file
+        try {
+            InsightHudConfig.saveConfig();
+            System.out.println("Insight HUD: Configuration saved successfully");
+        } catch (Exception e) {
+            System.err.println("Insight HUD: Error saving configuration: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }private void resetToDefaults() {
         // Reset config to defaults
         config.enableEntityHud = true;
         config.showEntityHealth = true;

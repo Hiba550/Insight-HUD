@@ -55,24 +55,23 @@ public class InsightHudConfig {
             e.printStackTrace();
         }
     }
-    
-    public static class ConfigData {
-        // Entity Info HUD Settings
+      public static class ConfigData {
+        // Entity Info HUD Settings - positioned at TOP CENTER by default
         public boolean enableEntityHud = true;
         public float entityHudScale = 1.0f;
-        public int entityHudX = 10;
-        public int entityHudY = 10;
+        public int entityHudX = 10; // Will be calculated as center in HudRenderer
+        public int entityHudY = 10; // Top margin
         public float entityHudOpacity = 0.9f;
         public boolean showEntityHealth = true;
         public boolean showEntityArmor = true;
         public boolean showEntityEffects = true;
         public boolean showEntityName = true;
         
-        // Gear Durability HUD Settings
+        // Gear Durability HUD Settings - positioned at BOTTOM RIGHT by default
         public boolean enableGearHud = true;
         public float gearHudScale = 1.0f;
-        public int gearHudX = 10;
-        public int gearHudY = 50;
+        public int gearHudX = 10; // Will be calculated as bottom-right in HudRenderer
+        public int gearHudY = 50; // Will be calculated as bottom-right in HudRenderer
         public float gearHudOpacity = 0.9f;
         public boolean showArmorDurability = true;
         public boolean showToolDurability = true;
