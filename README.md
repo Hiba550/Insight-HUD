@@ -8,19 +8,19 @@ Insight HUD provides two essential HUD overlays that enhance your Minecraft expe
 
 ## Features
 
-### 🎯 Entity Info HUD
+###  Entity Info HUD
 - **Mob Information**: Display name, health, and armor of targeted entities
 - **Status Effects**: Visual indicators for active potion effects
 - **Loot Preview**: Quick view of potential loot drops
 - **Smart Targeting**: Automatic detection of entities you're looking at
 
-### ⚔️ Gear Durability HUD
+###  Gear Durability HUD
 - **Equipment Status**: Real-time durability for armor, tools, and shields
 - **Color-Coded Indicators**: Green to red durability bars based on condition
 - **Enchantment Display**: Show active enchantments on equipped items
 - **Cooldown Timers**: Visual countdown for item abilities
 
-### 🎨 Customization
+###  Customization
 - **Flexible Positioning**: Move HUD elements anywhere on screen
 - **Scale & Opacity**: Adjust size and transparency to your preference
 - **Module System**: Enable/disable individual HUD components
