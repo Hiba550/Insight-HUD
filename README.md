@@ -72,31 +72,6 @@ Access the configuration menu by pressing `K` (default) or through Mod Menu.
 - **Animation Speed**: Control transition smoothness
 - **Theme**: Various visual styles available
 
-## Controls
-
-| Key | Action |
-|-----|--------|
-| `K` | Open configuration menu |
-| `L` | Toggle loot table viewer |
-| `Hold Shift` | Show detailed entity information |
-
-*All keybinds are configurable through the options menu*
-
-## Performance
-
-Insight HUD is designed with performance in mind:
-- **Minimal CPU Impact**: Efficient rendering and caching
-- **Memory Optimized**: Smart texture management
-- **Configurable Updates**: Adjust refresh rates to balance performance
-- **Selective Rendering**: Only draw visible elements
-
-## Compatibility
-
-### Mod Compatibility
-- **JEI/REI**: Full recipe integration
-- **WTHIT/HWYLA**: Complements existing HUD mods
-- **Minimap Mods**: Smart positioning to avoid overlaps
-- **Shader Packs**: Optimized for popular shaders
 
 
 ### Contributing
