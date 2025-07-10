@@ -98,18 +98,6 @@ Insight HUD is designed with performance in mind:
 - **Minimap Mods**: Smart positioning to avoid overlaps
 - **Shader Packs**: Optimized for popular shaders
 
-### Known Issues
-- Some modded entities may not display complete information
-- Custom armor textures may not render correctly with certain resource packs
-
-## Development
-
-### Building from Source
-```bash
-git clone <repository-url>
-cd Insight-HUD
-./gradlew build
-```
 
 ### Contributing
 Contributions are welcome! Please:
