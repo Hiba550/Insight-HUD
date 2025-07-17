@@ -7,10 +7,10 @@ Insight HUD provides two essential HUD overlays that enhance your Minecraft expe
 ## Installation
 
 ### Supported Platforms
-- **Fabric** (Recommended)
+- **Fabric**
 - **NeoForge**
 - **Forge**
-- **Quilt** (via Fabric compatibility)
+- **Quilt**
 
 ### Requirements
 - Minecraft 1.21.5 or higher
