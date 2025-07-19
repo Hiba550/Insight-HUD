@@ -26,4 +26,4 @@ Insight HUD provides two essential HUD overlays that enhance your Minecraft expe
 
 ## Configuration
 
-Access the configuration menu by pressing `K` (default) or through Mod Menu.
+Access the configuration menu by pressing `K` (default) .
