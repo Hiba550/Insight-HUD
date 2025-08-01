@@ -2,10 +2,6 @@
 
 **An information overlay mod for Minecraft 1.21.5+**
 
-Insight HUD provides two essential HUD overlays that enhance your Minecraft experience with detailed information about entities and your equipment, all while maintaining the vanilla aesthetic.
-
-## Installation
-
 ### Supported Platforms
 - **Fabric**
 - **NeoForge**
@@ -15,8 +11,6 @@ Insight HUD provides two essential HUD overlays that enhance your Minecraft expe
 ### Requirements
 - Minecraft 1.21.5 or higher
 - Java 21
-- Fabric API (for Fabric/Quilt)
-- Architectury API
 
 ### Download & Install
 1. Download the latest release for your modloader
