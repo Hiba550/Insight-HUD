@@ -15,11 +15,20 @@ public class InsightHudConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static Path configPath;
     private static ConfigData config = new ConfigData();
+      public static void init() {
+        // Config initialization is deferred until client is loaded
+        // This prevents null pointer exceptions during mod loading
+    }
     
-    public static void init() {
-        if (Minecraft.getInstance().gameDirectory != null) {
-            configPath = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("insighthud.json");
-            loadConfig();
+    public static void initClient() {
+        try {
+            if (Minecraft.getInstance() != null && Minecraft.getInstance().gameDirectory != null) {
+                configPath = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("insighthud.json");
+                loadConfig();
+            }
+        } catch (Exception e) {
+            // Fallback: use default config if initialization fails
+            config = new ConfigData();
         }
     }
     

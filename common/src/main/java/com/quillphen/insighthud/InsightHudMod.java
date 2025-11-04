@@ -21,8 +21,7 @@ public class InsightHudMod {
         OPEN_CONFIG_KEY = new KeyMapping(
             "key.insighthud.open_config",
             GLFW.GLFW_KEY_H,
-            "key.categories.insighthud"
-        );
+            "key.categories.insighthud"        );
         
         SHOW_LOOT_TABLE_KEY = new KeyMapping(
             "key.insighthud.show_loot_table",
@@ -30,12 +29,13 @@ public class InsightHudMod {
             "key.categories.insighthud"
         );
         
-        // Initialize config
+        // Initialize config (safe initialization without Minecraft instance)
         InsightHudConfig.init();
     }
     
     public static void initClient() {
         // Client-side initialization
+        InsightHudConfig.initClient(); // Initialize config with Minecraft instance
         HudRenderer.init();
     }
 }

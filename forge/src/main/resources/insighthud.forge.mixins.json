@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.quillphen.insighthud.forge.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "GuiMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
